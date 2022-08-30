@@ -1,0 +1,39 @@
+Calendario =
+
+ADDCOLUMNS (
+
+    CALENDAR (DATE(2015,1,1), EOMONTH(TODAY(),12)),
+
+    "DataComoInteiro", FORMAT ( [Date], "YYYYMMDD" ),
+
+    "Ano",FORMAT  ( [Date],"YYYY" ),
+
+    "Data",FORMAT ([Date],"DD/MM/YYYY"),
+
+    "NumeroMes", FORMAT ( [Date], "MM" ),
+
+    "DataMesDia",FORMAT([Date],"DD/MM"),
+
+    "AnoNumeroMes", FORMAT ( [Date], "YYYY/MM" ),
+
+    "AnoMesPequeno", FORMAT ( [Date], "YYYY/mmm" ),
+	
+	"DiaMes", FORMAT([Date],"dd")  & "-" &  FORMAT([Date],"ddd"),
+
+    "NomeMesPequeno", FORMAT ( [Date], "mmm" ),
+
+    "NomeMesLongo", FORMAT ( [Date], "mmmm" ),
+
+    "DiaDaSemanaNumero", WEEKDAY ( [Date] ),
+
+    "DiaDaSemana", FORMAT ( [Date], "dddd" ),
+
+    "DiaDaSemanaPequeno", FORMAT ( [Date], "ddd" ),
+
+    "Trimestre", "Q" & FORMAT ( [Date], "Q" ),
+
+    "DiaUtil",IF.EAGER(WEEKDAY([Date]) IN {1,7}, "Nao","Sim"),
+
+    "AnoTrimestre", FORMAT ( [Date], "YYYY" ) & "/Q" & FORMAT ( [Date], "Q" )
+
+)

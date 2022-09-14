@@ -1,0 +1,45 @@
+select sum(VRL_LIQ_SALDO_PED)
+from PEDIDOS s 
+left join TES t
+on t.CHAVE_TES  = s.CHAVE_TES 
+where STATUS_ITEM_PEDIDO NOT in ('03','09','15') and PEDIDO_ATIVO = 'A' and t.GERA_DUPLICATA = 'S';
+
+select 
+s.FILIAL, 
+v.NOME_VENDEDOR as "Nome do Vendedor",
+c.CLIENTE  as "Codigo do Cliente",
+c.NOME  as "Nome do cliente",
+s.NUM_PEDIDO  as "Num. Pedido",
+s.DATA_ENTREGA  as "Data de Entrega",
+st.DESC_STATUS  as "Status",
+s.CLASS_FOB  as "Calssificação FOB",
+to_char(s.DATA_ENTREGA, 'WW') as "Semana Pedido Entrega",
+' ' as "Tipo Cliente",
+p.COD_GRUPOPRODUTO  as "Grupo Produto",
+' ' as "%Chave da Condição de Pgto", --abreviado
+' ' as "Produto",
+' ' as "Codigo do Produto",
+' ' as "Tipo Frete",
+' ' as "Grupo",
+' ' as "Motivo",
+' ' as "Período",
+' ' as "UF",
+' ' as "R$ Liquido",
+' ' as "R$",
+' ' as "Ton",
+' ' as "PM (em Ton)",
+' ' as "Prazo Médio Pagamento",
+' ' as "% Desconto Pedido"
+from PEDIDOS s
+left join TES t
+on t.CHAVE_TES  = s.CHAVE_TES
+left join VENDEDORES v 
+on v.CODIGO_VENDEDOR = s.CODIGO_VENDEDOR
+left join CLIENTES c 
+on c.CHAVE_CLIENTE = s.CHAVE_CLIENTE 
+left join PRODUTOS p 
+on p.CODIGO_PRODUTO = s.CODIGO_PRODUTO 
+left join AUX_STATUS_ITEMPED st 
+on st.CODIGO = s.STATUS_ITEM_PEDIDO 
+where STATUS_ITEM_PEDIDO NOT in ('03','09','15')
+and PEDIDO_ATIVO = 'A' and t.GERA_DUPLICATA = 'S';

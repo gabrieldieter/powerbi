@@ -19,12 +19,12 @@ case when n.PESO_ITEM <> 0 then n.VALOR_LIQUIDO / n.PESO_ITEM end as "PM (em Ton
 (n.VALOR_BRUTO)  as "Fat. Bruto",
 (n.VLR_APUR_PIS)+(n.VLR_APUR_COFINS)+(n.VLR_ICMS)+(n.VLR_ICMS_SOL)+(n.VLR_IPI) as "Impostos",
 ROUND(((((n.VLR_APUR_PIS)+(n.VLR_APUR_COFINS)+(n.VLR_ICMS)+(n.VLR_ICMS_SOL)+(n.VLR_IPI))/((VALOR_BRUTO)+(VLR_ICMS_SOL)))*100),2) || '%' as "% Impostos",
-' ' as "Comissão",
-' ' as "% Comissão",
-' ' as "Tx. Financeiras",
-' ' as "% Tx. Fin.",
-' ' as "R$ Desc. Com.",
-' ' as "% Desc. Com."
+n.VLR_COMIS_ITEM as "Comissão",
+n.D2_COMIS1 || '%'  as "% Comissão",
+n.TX_FINANCEIRA  as "Tx. Financeiras",
+n.TX_FINANCEIRA / (n.VALOR_TOTAL  + n.ALQ_SOL_ICMS + n.VLR_IPI) as "% Tx. Fin.",
+n.VALOR_DECONTO_COMERCIAL_ITEMNF  as "R$ Desc. Com.",
+n.VALOR_DECONTO_COMERCIAL_ITEMNF / (n.VALOR_TOTAL  + n.ALQ_SOL_ICMS + n.VLR_IPI) as "% Desc. Com."
 from NFSAIDA n 
 left join PRODUTOS p 
 on p.CODIGO_PRODUTO = n.CODIGO_PRODUTO 

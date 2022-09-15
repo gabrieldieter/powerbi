@@ -14,7 +14,12 @@ p.DESCRICAO  as "Descricao do Produto",
 c.MUNICIPIO  as "Municipio",
 v.NOME_VENDEDOR  as "Nome do Vendedor",
 n.VALOR_LIQUIDO as "Mercadorias R$",
-n.PESO_ITEM  as "Ton",
+ROUND((case 
+	when AP.PRODUTOS in('Acessórios', 'Telhas') 
+then (n.PESO_ITEM/1000)
+	when AP.PRODUTOS in('Recortes') 
+	and n.COD_FISCAL not in ('5910','6910','6151','5116','6116')
+then (n.PESO_ITEM/1000) else 0 end ),2) as "Ton",
 case when n.PESO_ITEM <> 0 then n.VALOR_LIQUIDO / n.PESO_ITEM end as "PM (em Ton)",
 (n.VALOR_BRUTO)  as "Fat. Bruto",
 (n.VLR_APUR_PIS)+(n.VLR_APUR_COFINS)+(n.VLR_ICMS)+(n.VLR_ICMS_SOL)+(n.VLR_IPI) as "Impostos",
@@ -30,8 +35,10 @@ left join PRODUTOS p
 on p.CODIGO_PRODUTO = n.CODIGO_PRODUTO 
 left join TES t  
 on t.CHAVE_TES = n.CHAVE_TES 
-inner join CLIENTES c 
-on replace(c.CHAVE_CLIENTE, ' ', '') = n.CHAVE_CLIENTE
+left join CLIENTES c 
+on replace(n.LOJA, ' ','')  = replace(c.LOJA, ' ','')
+and replace(n.CLIENTE, ' ','')  = replace(c.CLIENTE, ' ','')
+and c.CLIENTE_DELETADO <> '*'
 left join VENDEDORES v 
 on v.CODIGO_VENDEDOR = n.VENDEDOR1 
 left join CONDICAO_PGTO cp 

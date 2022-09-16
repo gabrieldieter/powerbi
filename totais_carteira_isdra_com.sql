@@ -2,7 +2,7 @@ select
 /* ###### OK ###### */ round(sum(s.VRL_LIQ_SALDO_PED),2)  as "R$ Liquido",
 /* ###### OK ###### */  round(sum(s.VALOR_SLD_PEDIDO),2) as "R$",
 /* ###### OK ###### */ round(sum(SALDO_PESO_ITEM/1000),2)  as "Ton",
-/* ###### OK ###### */round((case when sum(SALDO_PESO_ITEM/1000) <> 0 then sum(s.VRL_LIQ_SALDO_PED) / sum(SALDO_PESO_ITEM/1000) end),2) as "PM (em Ton)",
+/* ###### DIFERENÇA ANALITICO ###### */round((case when sum(SALDO_PESO_ITEM/1000) <> 0 then sum(s.VRL_LIQ_SALDO_PED) / sum(SALDO_PESO_ITEM/1000) end),2) as "PM (em Ton)",
 /* ###### DIFERENCA ###### */round(avg(cp.PRAZO_MEDIO_PGTO),2)  as "Prazo Médio Pagamento",
 /* ###### DIFERENCA ###### */round(avg(s.PERC_DESC_ITEM),2) as "% Desconto Pedido"
 from PEDIDOS s

@@ -18,12 +18,12 @@ p.DESC_GRUPO  as "Grupo",
 ' ' as "Motivo",
 to_char(s.DATA_ENTREGA,'mm/yyyy')  as "Período",
 s.ESTADO_CLIENTE  as "UF",
-s.VRL_LIQ_SALDO_PED  as "R$ Liquido",
-s.VALOR_SLD_PEDIDO  as "R$",
-SALDO_PESO_ITEM  as "Ton",
-(case when s.SALDO_PESO_ITEM > 0 then s.VALOR_SLD_PEDIDO / s.SALDO_PESO_ITEM else 0 end) as "PM (em Ton)",
-cp.PRAZO_MEDIO_PGTO  as "Prazo Médio Pagamento",
-s.PERC_DESC_ITEM as "% Desconto Pedido"
+/* ###### OK ###### */ round((s.VRL_LIQ_SALDO_PED),2)  as "R$ Liquido",
+/* ###### OK ###### */  round((s.VALOR_SLD_PEDIDO),2) as "R$",
+/* ###### OK ###### */ (SALDO_PESO_ITEM /1000) as "Ton",
+/* ###### DIFERENÇA ###### */(case when (SALDO_PESO_ITEM) <> 0 then (s.VRL_LIQ_SALDO_PED) / (SALDO_PESO_ITEM) end)/1000 as "PM (em Ton)",
+/* ###### DIFERENCA ###### */round((cp.PRAZO_MEDIO_PGTO),2)  as "Prazo Médio Pagamento",
+/* ###### DIFERENCA ###### */round((s.PERC_DESC_ITEM),2) as "% Desconto Pedido"
 from PEDIDOS s
 left join TES t
 on t.CHAVE_TES  = s.CHAVE_TES
@@ -38,4 +38,5 @@ on st.CODIGO = s.STATUS_ITEM_PEDIDO
 left join CONDICAO_PGTO cp  
 on cp.COND_PGTO = s.COND_PGTO 
 where STATUS_ITEM_PEDIDO NOT in ('03','09','15')
-and PEDIDO_ATIVO = 'A' and t.GERA_DUPLICATA = 'S';
+and PEDIDO_ATIVO = 'A' 
+and t.GERA_DUPLICATA = 'S';

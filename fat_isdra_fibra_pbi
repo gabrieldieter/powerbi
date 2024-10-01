@@ -1,0 +1,168 @@
+/**************************************************************************************************/
+/**************************************************************************************************/
+/************************************     FATURAMENTO FIBRA   *************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+SELECT
+ROUND(SUM(SD2.D2_QUANT),2) 							AS QUANTIDADE,
+ROUND(SUM(SD2.D2_TOTAL - (SD2.D2_ICMSRET +SD2.D2_VALIMP5+SD2.D2_VALIMP6+SD2.D2_DIFAL+SD2.D2_VALIPI)),2) AS VALOR_LIQUIDO,
+ROUND(SUM(SD2.D2_TOTAL),2) 	 							AS VALOR_TOTAL,
+ROUND(SUM(SD2.D2_TOTAL+SD2.D2_VALIPI+SD2.D2_ICMSRET+SD2.D2_VALFRE),2) AS VALOR_TOT,
+sum(CASE 
+   	WHEN SB1.B1_TIPO = 'PA'  AND SB1.B1_UM = 'M2' AND SB1.B1_SEGUM = 'M3' THEN SD2.D2_QUANT*SB1.B1_CONV 
+	WHEN SB1.B1_TIPO = 'PA'  AND SB1.B1_UM = 'M3'                         THEN SD2.D2_QUANT 
+   	WHEN SB1.B1_TIPO = 'PA'  AND SB1.B1_UM = 'MT' AND SB1.B1_SEGUM <>'M3' THEN SD2.D2_QUANT 
+	WHEN SB1.B1_TIPO = 'PA'  AND SB1.B1_UM NOT IN ('M2','M3','MT') THEN 0
+  END ) AS QTDE_PAINEL_NFS
+FROM PROTHEUS.SF2010 SF2
+INNER JOIN SD2010 SD2 ON SD2.D2_FILIAL  = SF2.F2_FILIAL 
+						AND SD2.D2_DOC   = SF2.F2_DOC 
+						AND SD2.D2_SERIE = SF2.F2_SERIE 
+						AND SD2.D2_LOJA  = SF2.F2_LOJA 
+						AND SD2.D2_CLIENTE = SF2.F2_CLIENTE 
+INNER JOIN SB1010  SB1 ON SB1.B1_COD  = SD2.D2_COD 
+left outer join SF4010 SF4 
+on SF4.F4_CODIGO = SD2.D2_TES 
+INNER  JOIN SC6010 SC6 ON SD2.D2_PEDIDO  = SC6.C6_NUM  AND  SD2.D2_ITEMPV = SC6.C6_ITEM
+INNER JOIN SC5010 SC5  ON SC5.C5_NUM  = SC6.C6_NUM  AND SC5.C5_FILIAL  = SC6.C6_FILIAL
+WHERE 
+SF2.D_E_L_E_T_ <> '*' 
+AND SD2.D_E_L_E_T_ <> '*' 
+AND SB1.D_E_L_E_T_ <> '*'
+AND SC6.D_E_L_E_T_ <> '*'
+AND SC5.D_E_L_E_T_ <> '*'
+AND SF2.F2_EMISSAO <> ' '
+AND SC5.C5_EMISSAO <> ' '
+AND SF2.F2_EMISSAO >= '20240801'
+AND SF2.F2_EMISSAO <= '20240831'
+and SF4.F4_DUPLIC = 'S'
+and SB1.B1_GRUPO in 
+('1100','1101','1110','1111','1112','1113','1116','1118','1123','1124','1125','1126','1200',
+'1210','1211','1212','1213','1214','1215','1216','1220','1221','1222','1223','1224','1225',
+'1226','1227','1230','1231','1232','1233','1234','1235','1236','1237','1238','1239','1240',
+'1241','1242','1243','1244','1250','1252','1253','1254','1260','1270','1271','1272','1273','1274','1275','MDF B')
+
+
+/**************************************************************************************************/
+/**************************************************************************************************/
+/************************************     DEVOLUÇÕES FIBRA   **************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+
+SELECT
+ROUND(SUM(SD1.D1_QUANT),2) 							AS QUANTIDADE,
+ROUND(SUM(SD1.D1_TOTAL - (SD1.D1_ICMSRET +SD1.D1_VALIMP5+SD1.D1_VALIMP6+SD1.D1_DIFAL+SD1.D1_VALIPI)),2) AS VALOR_LIQUIDO,
+ROUND(SUM(SD1.D1_TOTAL),2) 	 							AS VALOR_TOTAL,
+ROUND(SUM(SD1.D1_TOTAL+SD1.D1_VALIPI+SD1.D1_VALFRE- sd1.D1_VALDESC),2)  AS VALOR_TOT,
+sum(CASE 
+   	WHEN SB1.B1_TIPO = 'PA'  AND SB1.B1_UM = 'M2' AND SB1.B1_SEGUM = 'M3' THEN SD1.D1_QUANT*SB1.B1_CONV 
+	WHEN SB1.B1_TIPO = 'PA'  AND SB1.B1_UM = 'M3'                         THEN SD1.D1_QUANT 
+   	WHEN SB1.B1_TIPO = 'PA'  AND SB1.B1_UM = 'MT' AND SB1.B1_SEGUM <>'M3' THEN SD1.D1_QUANT 
+	WHEN SB1.B1_TIPO = 'PA'  AND SB1.B1_UM NOT IN ('M2','M3','MT') THEN 0
+  END ) AS QTDE_PAINEL_NFS
+FROM PROTHEUS.SF1010 SF1
+INNER JOIN SD1010 SD1 ON SD1.D1_FILIAL  = SF1.F1_FILIAL 
+						AND SD1.D1_DOC   = SF1.F1_DOC 
+						AND SD1.D1_SERIE = SF1.F1_SERIE 
+						AND SD1.D1_LOJA  = SF1.F1_LOJA 
+						AND SD1.D1_FORNECE = SF1.F1_FORNECE 
+INNER JOIN SB1010  SB1 ON SB1.B1_COD  = SD1.D1_COD 
+left outer join SF4010 SF4 
+on SF4.F4_CODIGO = SD1.D1_TES
+WHERE 
+SF1.D_E_L_E_T_ <> '*' 
+AND SD1.D_E_L_E_T_ <> '*' 
+AND SB1.D_E_L_E_T_ <> '*'
+AND Sf4.D_E_L_E_T_ <> '*'
+AND SF1.F1_EMISSAO <> ' '
+AND SF1.F1_DTDIGIT >= '20240901' -- SUM(NFENTRADA[VLRTOTAL])+SUM(NFENTRADA[VLRIPI])+SUM(NFENTRADA[VLRFRETE])-(SUM(NFENTRADA[DESCONTO])),
+AND SF1.F1_DTDIGIT <= '20240930'
+and SF4.F4_DUPLIC = 'S'
+and SD1.D1_TIPO = 'D'
+and SD1.D1_NFORI <> ' '
+and SB1.B1_GRUPO in 
+('1100','1101','1110','1111','1112','1113','1116','1118','1123','1124','1125','1126','1200',
+'1210','1211','1212','1213','1214','1215','1216','1220','1221','1222','1223','1224','1225',
+'1226','1227','1230','1231','1232','1233','1234','1235','1236','1237','1238','1239','1240',
+'1241','1242','1243','1244','1250','1252','1253','1254','1260','1270','1271','1272','1273','1274','1275','MDF B')
+
+
+/**************************************************************************************************/
+/**************************************************************************************************/
+/************************************     FATURAMENTO ISDRA   *************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+
+select
+ROUND(SUM(ITEM.D2_QUANT*PES.B1_PESO),2) PESO,
+sum(ITEM.D2_QUANT),
+sum(ITEM.D2_TOTAL+item.D2_VALIPI+item.D2_ICMSRET),
+sum(ITEM.D2_TOTAL) - (sum(ITEM.D2_VALICM) +sum(ITEM.D2_VALIMP5)+sum(ITEM.D2_VALIMP6)+SUM(ITEM.D2_DIFAL))  AS VALOR_LIQUIDO
+FROM PROTHEUS.SF2020 CNF
+JOIN SD2020 ITEM ON ITEM.D2_FILIAL  = CNF.F2_FILIAL 
+						AND ITEM.D2_DOC   = CNF.F2_DOC 
+						AND ITEM.D2_SERIE = CNF.F2_SERIE 
+						AND ITEM.D2_LOJA  = CNF.F2_LOJA 
+						AND ITEM.D2_CLIENTE = CNF.F2_CLIENTE 
+JOIN SB1020  PES ON PES.B1_COD  = ITEM.D2_COD 
+JOIN  PROTHEUS.SE4020 SE4 ON SE4.E4_CODIGO = CNF.F2_COND 
+join SF4020 tes
+on tes.F4_CODIGO = ITEM.D2_TES 
+and tes.F4_FILIAL = ITEM.D2_FILIAL 
+WHERE CNF.D_E_L_E_T_=' '
+AND ITEM.D_E_L_E_T_ = ' ' 
+AND PES.D_E_L_E_T_  = ' '
+AND CNF.F2_EMISSAO  >= '20240901'
+AND CNF.F2_EMISSAO <= '20240930'
+--and F2_FILIAL in ('02','03')
+and tes.F4_DUPLIC = 'S'
+and ITEM.D2_GRUPO in ('A107','A108','A109','A110','A111','A112','A113','A114','A115','A116','A118','A119',
+'A120','A121','A122','A206','A207','A208','A209','A210','A211','A212','A213','A214','A215','A216','A217',
+'A218','A219','A220','A221','A222','A223','A224','A225','B101','B102','C101','C102','C103','C104','C105',
+'C106','C107','C108','C109','D101','E101','9010','A101','A103','A104','A105','A201','A203','A204','A205')
+
+
+/**************************************************************************************************/
+/**************************************************************************************************/
+/************************************     DEVOLUÇÕES ISDRA   **************************************/
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+
+select 
+sum((D1_QUANT*PES.B1_PESO))/1000 PESO,
+ROUND(SUM(ITNFE.D1_TOTAL+ITNFE.D1_VALIPI+ITNFE.D1_ICMSRET),2)  AS VALOR_TOT
+FROM 		PROTHEUS.SF1020 CNFE
+INNER JOIN 	PROTHEUS.SD1020 ITNFE ON    ITNFE.D1_DOC  	= CNFE.F1_DOC
+									AND ITNFE.D1_SERIE 	= CNFE.F1_SERIE 
+									AND ITNFE.D1_FORNECE = CNFE.F1_FORNECE 
+									AND ITNFE.D1_LOJA 	= CNFE.F1_LOJA 
+									AND ITNFE.D1_FILIAL = CNFE.F1_FILIAL
+INNER JOIN SB1020  PES ON PES.B1_COD  	 = ITNFE.D1_COD 	
+LEFT OUTER JOIN PROTHEUS.SD2020  SD2 ON SD2.D2_DOC  		= ITNFE.D1_NFORI  
+										AND SD2.D2_SERIE  	= ITNFE.D1_SERIORI 
+										AND SD2.D2_FILIAL 	= ITNFE.D1_FILIAL 
+										AND SD2.D2_ITEM 	= ITNFE.D1_ITEMORI 		
+left outer join SF4020 SF4 
+on SF4.F4_CODIGO = ITNFE.D1_TES
+and SF4.F4_FILIAL = ITNFE.D1_FILIAL 
+where 1=1
+and CNFE.D_E_L_E_T_ <> '*' 
+AND ITNFE.D_E_L_E_T_ <> '*' 
+AND PES.D_E_L_E_T_ <> '*'
+--AND Sf4.D_E_L_E_T_ <> '*'
+AND CNFE.F1_EMISSAO <> ' '
+AND SD2.D2_EMISSAO >= '20240901' -- SUM(NFENTRADA[VLRTOTAL])+SUM(NFENTRADA[VLRIPI])+SUM(NFENTRADA[VLRFRETE])-(SUM(NFENTRADA[DESCONTO])),
+AND SD2.D2_EMISSAO <= '20240930'
+--and SF4.F4_DUPLIC = 'S'
+and ITNFE.D1_TIPO = 'D'
+and ITNFE.D1_NFORI <> ' '
+and PES.B1_GRUPO in ('A107','A108','A109','A110','A111','A112','A113','A114','A115','A116','A118','A119',
+'A120','A121','A122','A206','A207','A208','A209','A210','A211','A212','A213','A214','A215','A216','A217',
+'A218','A219','A220','A221','A222','A223','A224','A225','B101','B102','C101','C102','C103','C104','C105',
+'C106','C107','C108','C109','D101','E101','9010','A101','A103','A104','A105','A201','A203','A204','A205')
+AND CNFE.F1_FILIAL IN ('02','03','08')
+
